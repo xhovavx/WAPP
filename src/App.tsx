@@ -8,10 +8,12 @@ import { AudioRecorderModal } from './components/AudioRecorderModal';
 import { FeedbackDrawer } from './components/FeedbackDrawer';
 import { InfoModal } from './components/InfoModal';
 import { DesktopShell } from './components/DesktopShell';
+import { AudioMiniPlayer } from './components/AudioMiniPlayer';
 import { Message, VoiceChapter, TypingStatus, ContextualQuote, PerspectiveMode } from './types/chat';
-import { SCRIPTED_STEPS, DOC_VOICE_NOTE_ID, DOC_VOICE_NOTE_MESSAGE } from './data/demoScript';
-import { generateCharacterReply } from './data/characterLogic';
+import { SCRIPTED_STEPS, DOC_VOICE_NOTE_ID, DOC_VOICE_NOTE_MESSAGE, AUTHORS } from './data/demoScript';
+import { generateCharacterReply, resetCharacterSessionHistory } from './data/characterLogic';
 import { sounds } from './utils/soundEffects';
+import { globalAudioPlayer } from './utils/globalAudioPlayer';
 
 export function App() {
   // Chat messages state
@@ -134,6 +136,7 @@ export function App() {
   // Replay Act 1 Intro
   const handleReplayIntro = () => {
     if (scriptTimeoutRef.current) clearTimeout(scriptTimeoutRef.current);
+    resetCharacterSessionHistory();
     setMessages([]);
     setIsAct1Playing(true);
     setIsUnlocked(false);
@@ -346,20 +349,84 @@ export function App() {
     );
   };
 
-  // Jump to quote card in original voice note and play audio
-  const handleQuoteCardClick = (voiceNoteId?: string, timestampStart?: number) => {
+  // Jump to quote card in original voice note and play strictly that isolated segment
+  const handleQuoteCardClick = (
+    voiceNoteId?: string,
+    timestampStart?: number,
+    quote?: ContextualQuote
+  ) => {
     const targetMsg = messages.find((m) => m.id === (voiceNoteId || DOC_VOICE_NOTE_ID));
-    if (targetMsg && targetMsg.type === 'voice') {
-      const chap = targetMsg.voiceData?.chapters.find(
-        (c) => timestampStart !== undefined && timestampStart >= c.startTime && timestampStart <= c.endTime
-      ) || targetMsg.voiceData?.chapters[0];
+    if (!targetMsg || targetMsg.type !== 'voice') return;
 
-      if (chap) {
-        setActiveVoiceMessage(targetMsg);
-        setSelectedChapter(chap);
-        setPlaybackTime(chap.startTime);
-        setSeekTimestamp(chap.startTime);
-      }
+    const chapters = targetMsg.voiceData?.chapters || [];
+    const targetChap =
+      chapters.find(
+        (c) =>
+          (quote?.chapterId && c.id === quote.chapterId) ||
+          (timestampStart !== undefined &&
+            timestampStart >= c.startTime &&
+            timestampStart <= c.endTime)
+      ) || chapters[0];
+
+    const author = AUTHORS[targetMsg.authorId] || AUTHORS.doc;
+    const isReal = !!targetMsg.voiceData?.isRealRecording;
+    const totalDuration = targetMsg.voiceData?.duration || 258;
+
+    if (targetChap) {
+      const chapDuration = targetChap.endTime - targetChap.startTime;
+      const targetAudioUrl =
+        targetChap.audioUrl ||
+        targetMsg.voiceData?.audioUrl ||
+        '/assets/voicenotes/doc_chapter_1.mp3';
+
+      const fileStartSec = isReal ? targetChap.startTime : 0;
+      const fileEndSec = isReal ? targetChap.endTime : chapDuration;
+
+      // Play strictly this isolated segment and automatically pause at endTime
+      globalAudioPlayer.playTrack({
+        messageId: targetMsg.id,
+        authorId: targetMsg.authorId,
+        authorName: author.name,
+        authorColor: author.color,
+        authorAvatar: author.avatar,
+        title: targetChap.title,
+        audioUrl: targetAudioUrl,
+        isQuotedClip: true,
+        fileStartSec,
+        fileEndSec,
+        segmentDuration: chapDuration,
+        messageStartSec: targetChap.startTime,
+        messageEndSec: targetChap.endTime,
+        totalMessageDuration: totalDuration,
+        chapterId: targetChap.id,
+        isRealRecording: isReal,
+        stopAtSegmentEnd: true, // STRICT ISOLATION: Stop as soon as currentTime reaches endTime
+      });
+    } else {
+      // Non-segmented voice note: play only this message
+      const audioUrl =
+        targetMsg.voiceData?.audioUrl ||
+        (targetMsg.authorId === 'marty'
+          ? '/assets/voicenotes/marty_reply_1.mp3'
+          : '/assets/voicenotes/doc_chapter_1.mp3');
+
+      globalAudioPlayer.playTrack({
+        messageId: targetMsg.id,
+        authorId: targetMsg.authorId,
+        authorName: author.name,
+        authorColor: author.color,
+        authorAvatar: author.avatar,
+        title: 'Voice Note',
+        audioUrl,
+        isQuotedClip: true,
+        fileStartSec: 0,
+        fileEndSec: totalDuration,
+        segmentDuration: totalDuration,
+        messageStartSec: 0,
+        messageEndSec: totalDuration,
+        totalMessageDuration: totalDuration,
+        stopAtSegmentEnd: true,
+      });
     }
   };
 
@@ -411,6 +478,9 @@ export function App() {
         seekTimestamp={seekTimestamp}
       />
 
+      {/* Bottom Floating Mini-Player Bar inside iPhone frame */}
+      <AudioMiniPlayer />
+
       {/* Docked iOS Chapter Scrubber Bar above Composer */}
       {selectedChapter && activeVoiceMessage && (
         <ChapterScrubberBar
@@ -436,7 +506,10 @@ export function App() {
       {/* Bottom iOS Composer & Voice Note Mic Button */}
       <Composer
         onSendMessage={handleSendMessage}
-        onOpenAudioRecorder={() => setIsAudioRecorderOpen(true)}
+        onOpenAudioRecorder={() => {
+          globalAudioPlayer.stop();
+          setIsAudioRecorderOpen(true);
+        }}
         activeChapterReply={selectedChapter}
         draftText={draftText}
         onDraftChange={setDraftText}

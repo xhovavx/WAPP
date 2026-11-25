@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Message, PerspectiveMode } from '../types/chat';
+import { Message, PerspectiveMode, ContextualQuote } from '../types/chat';
 import { AUTHORS } from '../data/demoScript';
 import { ReactionMenu } from './ReactionMenu';
 
@@ -7,7 +7,7 @@ interface MessageBubbleProps {
   message: Message;
   currentUserId: string;
   perspective: PerspectiveMode;
-  onQuoteCardClick?: (voiceNoteId?: string, timestampStart?: number) => void;
+  onQuoteCardClick?: (voiceNoteId?: string, timestampStart?: number, quote?: ContextualQuote) => void;
   onAddReaction: (messageId: string, emoji: string) => void;
   onReplyToMessage: (message: Message) => void;
 }
@@ -94,7 +94,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           <div
             onClick={() => {
               if (onQuoteCardClick) {
-                onQuoteCardClick(quote.voiceNoteId, quote.timestampStart);
+                onQuoteCardClick(quote.voiceNoteId, quote.timestampStart, quote);
               }
             }}
             className={`mb-2 rounded-lg p-2 text-xs cursor-pointer border-l-[3.5px] transition-opacity hover:opacity-90 ${

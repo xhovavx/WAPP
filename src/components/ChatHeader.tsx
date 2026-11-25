@@ -1,5 +1,7 @@
 import React from 'react';
 import { TypingStatus, PerspectiveMode } from '../types/chat';
+import { useUserAvatar } from '../utils/userAvatar';
+import { UserAvatarButton } from './UserAvatarButton';
 
 interface ChatHeaderProps {
   typingStatus: TypingStatus;
@@ -16,6 +18,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   onOpenInfo,
   onOpenFeedback,
 }) => {
+  const { avatar: userAvatar } = useUserAvatar();
+
   return (
     <header className="w-full bg-[#F6F6F6] border-b border-[#E5E5EA] px-3 pt-1.5 pb-2 flex flex-col select-none z-20 shadow-xs">
       {/* Top Bar: Contact Info & Action Buttons */}
@@ -44,18 +48,24 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 className="w-9 h-9 rounded-full object-cover border border-black/10 shadow-sm"
               />
             ) : (
-              <>
+              /* Group: Doc, Marty & You (Einstein) trio */
+              <div className="relative w-9 h-9">
                 <img
                   src="/assets/doc_avatar.png"
                   alt="Doc Brown"
-                  className="w-7 h-7 rounded-full object-cover border-2 border-white absolute -top-0.5 -left-0.5 shadow-sm"
+                  className="w-5 h-5 rounded-full object-cover border border-white absolute -top-0.5 left-0 shadow-2xs"
                 />
                 <img
                   src="/assets/marty_avatar.png"
                   alt="Marty McFly"
-                  className="w-7 h-7 rounded-full object-cover border-2 border-white absolute -bottom-0.5 -right-0.5 shadow-sm"
+                  className="w-5 h-5 rounded-full object-cover border border-white absolute -top-0.5 right-0 shadow-2xs"
                 />
-              </>
+                <img
+                  src={userAvatar}
+                  alt="You (Einstein)"
+                  className="w-5 h-5 rounded-full object-cover border border-white absolute bottom-0 left-2 shadow-2xs"
+                />
+              </div>
             )}
           </div>
 
@@ -84,15 +94,15 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           </div>
         </div>
 
-        {/* Right Action Icons: Video, Phone, Feedback */}
-        <div className="flex items-center space-x-3 text-[#007AFF] pr-1">
+        {/* Right Action Icons: Video, Phone, Feedback & You Avatar Picker */}
+        <div className="flex items-center space-x-2 text-[#007AFF] pr-1">
           {/* Video Call Icon */}
           <button
             title="Video Call"
             onClick={() => alert('Simulating WhatsApp video call...')}
             className="hover:opacity-75 transition-opacity"
           >
-            <svg className="w-6 h-6 stroke-current fill-none stroke-[2]" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 stroke-current fill-none stroke-[2]" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h9a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" />
             </svg>
           </button>
@@ -103,7 +113,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             onClick={() => alert('Simulating WhatsApp audio call...')}
             className="hover:opacity-75 transition-opacity"
           >
-            <svg className="w-5 h-5 stroke-current fill-none stroke-[2]" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 stroke-current fill-none stroke-[2]" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
           </button>
@@ -116,6 +126,9 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           >
             Feedback
           </button>
+
+          {/* You (Einstein) Avatar Button */}
+          <UserAvatarButton size="sm" showBadge={true} allowReset={true} />
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { VoiceChapter } from '../types/chat';
 import { sounds } from '../utils/soundEffects';
+import { UserAvatarButton } from './UserAvatarButton';
 
 interface ComposerProps {
   onSendMessage: (text: string) => void;
@@ -58,6 +59,9 @@ export const Composer: React.FC<ComposerProps> = ({
     <footer className="w-full bg-[#F6F6F6] border-t border-[#E5E5EA] px-2 pt-1.5 pb-2 select-none z-20 flex flex-col">
       {/* Input Row */}
       <div className="flex items-center space-x-1.5">
+        {/* User Profile Avatar with custom upload & reset */}
+        <UserAvatarButton size="sm" showBadge={false} allowReset={true} className="flex-shrink-0" />
+
         {/* Plus (+) Action Button */}
         <button
           onClick={() => {

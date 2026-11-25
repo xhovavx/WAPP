@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Message, VoiceChapter, TypingStatus, PerspectiveMode } from '../types/chat';
+import { Message, VoiceChapter, TypingStatus, PerspectiveMode, ContextualQuote } from '../types/chat';
 import { MessageBubble } from './MessageBubble';
 import { VoiceNoteBubble } from './VoiceNoteBubble';
 
@@ -11,7 +11,7 @@ interface MessageListProps {
   onOpenChapterReply: (chapter: VoiceChapter, message: Message) => void;
   onAddReaction: (messageId: string, emoji: string, chapterId?: string) => void;
   onReplyToMessage: (message: Message) => void;
-  onQuoteCardClick: (voiceNoteId?: string, timestampStart?: number) => void;
+  onQuoteCardClick: (voiceNoteId?: string, timestampStart?: number, quote?: ContextualQuote) => void;
   seekTimestamp?: number;
 }
 

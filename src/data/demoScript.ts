@@ -22,7 +22,7 @@ export const AUTHORS: Record<string, Author> = {
     id: 'user',
     name: 'You',
     fullName: 'You',
-    avatar: '',
+    avatar: '/einstein.png',
     color: '#007AFF', // iOS blue
     accentColor: '#007AFF',
   }

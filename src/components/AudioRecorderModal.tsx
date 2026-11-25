@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { formatTime, segmentTranscriptIntoChapters, generateWaveform } from '../utils/speechAudio';
+import { formatTime, segmentVoiceNoteChapters, SpeechUtterance, generateWaveform } from '../utils/speechAudio';
 import { VoiceChapter } from '../types/chat';
 import { sounds } from '../utils/soundEffects';
 
@@ -50,6 +50,8 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
   const recognitionRef = useRef<any>(null);
   const startTimeRef = useRef<number>(0);
   const finalDurationRef = useRef<number>(0);
+  const utterancesRef = useRef<SpeechUtterance[]>([]);
+  const isRecordingRef = useRef<boolean>(false);
 
   // Reset state when opened
   useEffect(() => {
@@ -66,6 +68,7 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
   }, [isOpen]);
 
   const resetState = () => {
+    isRecordingRef.current = false;
     setSeconds(0);
     setIsRecording(false);
     setHasRecordedBlob(false);
@@ -76,9 +79,11 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
     setPreviewChapters([]);
     setEditingChapterId(null);
     audioChunksRef.current = [];
+    utterancesRef.current = [];
   };
 
   const cleanupAllAudio = () => {
+    isRecordingRef.current = false;
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -160,13 +165,15 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
         setHasRecordedBlob(true);
 
         const duration = Math.max(1, finalDurationRef.current || seconds);
-        const transcriptText = liveTranscript.trim() || 'Live voice note recording';
-        const chaps = segmentTranscriptIntoChapters(transcriptText, duration);
+        const utterancesText = utterancesRef.current.map((u) => u.text).join(' ').trim();
+        const transcriptText = liveTranscript.trim() || utterancesText || 'Live voice note recording';
+        const chaps = segmentVoiceNoteChapters(utterancesRef.current, duration, transcriptText);
         setPreviewChapters(chaps);
       };
 
       recorder.start(200); // 200ms slice chunks
       setIsRecording(true);
+      isRecordingRef.current = true;
       startTimeRef.current = Date.now();
 
       // Audio level visualizer with Web Audio AnalyserNode
@@ -193,11 +200,11 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
         renderLevels();
       }
 
-      // Elapsed seconds counter
+      // Elapsed seconds counter (up to 90 seconds / 1:30)
       timerRef.current = setInterval(() => {
         const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
         setSeconds(elapsed);
-        if (elapsed >= 60) {
+        if (elapsed >= 90) {
           stopRealRecording();
         }
       }, 1000);
@@ -227,15 +234,56 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
       recognition.lang = 'en-US';
 
       recognition.onresult = (event: any) => {
-        let full = '';
-        for (let i = 0; i < event.results.length; i++) {
-          full += event.results[i][0].transcript + ' ';
+        let sessionInterim = '';
+        const nowSec = Math.max(0, (Date.now() - startTimeRef.current) / 1000);
+
+        for (let i = event.resultIndex || 0; i < event.results.length; i++) {
+          const res = event.results[i];
+          const transcriptChunk = res[0]?.transcript || '';
+
+          if (res.isFinal) {
+            const trimmed = transcriptChunk.trim();
+            if (trimmed) {
+              const prevEnd =
+                utterancesRef.current.length > 0
+                  ? utterancesRef.current[utterancesRef.current.length - 1].endTime
+                  : 0;
+              const uStart = Math.max(prevEnd, Math.max(0, nowSec - 2.5));
+              utterancesRef.current.push({
+                text: trimmed,
+                startTime: uStart,
+                endTime: nowSec,
+              });
+            }
+          } else {
+            sessionInterim += transcriptChunk + ' ';
+          }
         }
-        setLiveTranscript(full.trim());
+
+        const allFinalized = utterancesRef.current.map((u) => u.text).join(' ');
+        const totalText = [allFinalized, sessionInterim.trim()].filter(Boolean).join(' ');
+        setLiveTranscript(totalText.trim());
       };
 
       recognition.onerror = () => {
-        // Continue recording audio even if speech recognition errors
+        // Continue recording audio even if speech recognition reports an error
+      };
+
+      recognition.onend = () => {
+        // Automatically restart speech recognition while recording is still active across 90s
+        if (isRecordingRef.current) {
+          try {
+            recognition.start();
+          } catch {
+            setTimeout(() => {
+              if (isRecordingRef.current) {
+                try {
+                  recognition.start();
+                } catch {}
+              }
+            }, 100);
+          }
+        }
       };
 
       recognition.start();
@@ -247,6 +295,7 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
 
   const stopRealRecording = () => {
     sounds.playRecordStop();
+    isRecordingRef.current = false;
     const duration = Math.max(1, Math.floor((Date.now() - startTimeRef.current) / 1000));
     finalDurationRef.current = duration;
     setIsRecording(false);
@@ -278,11 +327,12 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
 
   const handleSendNote = () => {
     const finalDuration = Math.max(1, finalDurationRef.current || seconds || 2);
-    const transcriptText = liveTranscript.trim() || 'Live voice note';
+    const utterancesText = utterancesRef.current.map((u) => u.text).join(' ').trim();
+    const transcriptText = liveTranscript.trim() || utterancesText || 'Live voice note';
     const chaptersToSend =
       previewChapters.length > 0
         ? previewChapters
-        : segmentTranscriptIntoChapters(transcriptText, finalDuration);
+        : segmentVoiceNoteChapters(utterancesRef.current, finalDuration, transcriptText);
 
     const waveform = generateWaveform(36, Math.floor(Math.random() * 5000));
 
@@ -307,7 +357,24 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
     const sampleText =
       'Doc, Marty, check this out: I just calibrated the flux capacitor sensors. The temporal displacement will occur at 88 miles per hour without burning out the alternator. No second guessing this time!';
     const finalDuration = 21; // duration of sample audio
-    const chapters = segmentTranscriptIntoChapters(sampleText, finalDuration);
+    const sampleUtterances: SpeechUtterance[] = [
+      {
+        text: 'Doc, Marty, check this out: I just calibrated the flux capacitor sensors.',
+        startTime: 0,
+        endTime: 6.8,
+      },
+      {
+        text: 'The temporal displacement will occur at 88 miles per hour without burning out the alternator.',
+        startTime: 7.2,
+        endTime: 14.8,
+      },
+      {
+        text: 'No second guessing this time!',
+        startTime: 15.5,
+        endTime: 21,
+      },
+    ];
+    const chapters = segmentVoiceNoteChapters(sampleUtterances, finalDuration, sampleText);
     const waveform = generateWaveform(36, 1985);
 
     onSendVoiceNote({
@@ -358,7 +425,7 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
             )}
           </div>
           <span className="text-xs font-mono font-bold text-gray-700">
-            {formatTime(seconds)} / 1:00
+            {formatTime(seconds)} / 1:30
           </span>
         </div>
 

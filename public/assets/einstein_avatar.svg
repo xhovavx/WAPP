@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="einsteinBg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FEF3C7" />
+      <stop offset="100%" stop-color="#FDE68A" />
+    </radialGradient>
+    
+    <!-- Stopwatch Gold Gradient -->
+    <linearGradient id="goldWatch" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+
+    <!-- Collar Red Gradient -->
+    <linearGradient id="collarRed" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#B91C1C" />
+    </linearGradient>
+
+    <!-- Shadow filter -->
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#78350F" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <!-- Circular Outer Backdrop -->
+  <circle cx="64" cy="64" r="62" fill="url(#einsteinBg)" stroke="#F59E0B" stroke-width="2.5" />
+
+  <!-- Shaggy Chest Fur -->
+  <path d="M38 106 C38 92 48 88 64 88 C80 88 90 92 90 106 C92 118 78 126 64 126 C50 126 36 118 38 106 Z" fill="#F5F5F4" filter="url(#softShadow)" />
+  <path d="M46 96 C42 106 52 118 64 122 C76 118 86 106 82 96 C76 102 70 104 64 104 C58 104 52 102 46 96 Z" fill="#E7E5E4" />
+
+  <!-- Floppy Sheepdog Ears -->
+  <!-- Left Ear -->
+  <path d="M35 44 C20 48 16 70 23 84 C26 90 32 92 36 85 C40 76 43 62 41 50 Z" fill="#A8A29E" filter="url(#softShadow)" />
+  <path d="M26 55 C21 68 23 80 27 84 C29 86 32 85 34 80 C36 72 38 62 36 54 Z" fill="#78716C" />
+  <!-- Ear fur tufts -->
+  <path d="M22 75 C19 82 25 88 28 84" stroke="#D6D3D1" stroke-width="2" stroke-linecap="round" fill="none" />
+  <path d="M29 65 C26 72 31 78 34 74" stroke="#D6D3D1" stroke-width="2" stroke-linecap="round" fill="none" />
+
+  <!-- Right Ear -->
+  <path d="M93 44 C108 48 112 70 105 84 C102 90 96 92 92 85 C88 76 85 62 87 50 Z" fill="#A8A29E" filter="url(#softShadow)" />
+  <path d="M102 55 C107 68 105 80 101 84 C99 86 96 85 94 80 C92 72 90 62 92 54 Z" fill="#78716C" />
+  <!-- Ear fur tufts -->
+  <path d="M106 75 C109 82 103 88 100 84" stroke="#D6D3D1" stroke-width="2" stroke-linecap="round" fill="none" />
+  <path d="M99 65 C102 72 97 78 94 74" stroke="#D6D3D1" stroke-width="2" stroke-linecap="round" fill="none" />
+
+  <!-- Shaggy Head Base -->
+  <path d="M36 54 C33 34 48 24 64 24 C80 24 95 34 92 54 C94 72 84 86 64 86 C44 86 34 72 36 54 Z" fill="#F5F5F4" filter="url(#softShadow)" />
+
+  <!-- Shaggy Eyebrow & Forehead Tufts (Doc Brown sheepdog look) -->
+  <path d="M38 38 C42 26 52 30 54 36 C58 26 70 26 74 36 C76 30 86 26 90 38 C84 42 80 48 76 46 C70 42 66 44 64 45 C62 44 58 42 52 46 C48 48 44 42 38 38 Z" fill="#E7E5E4" />
+  <path d="M48 30 C53 22 61 24 64 28 C67 24 75 22 80 30" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" fill="none" />
+
+  <!-- Eyes with Sparkle -->
+  <!-- Left Eye -->
+  <ellipse cx="50" cy="53" rx="5" ry="6" fill="#1C1917" />
+  <circle cx="48.5" cy="51" r="1.8" fill="#FFFFFF" />
+  <circle cx="51.5" cy="54.5" r="0.8" fill="#FFFFFF" />
+
+  <!-- Right Eye -->
+  <ellipse cx="78" cy="53" rx="5" ry="6" fill="#1C1917" />
+  <circle cx="76.5" cy="51" r="1.8" fill="#FFFFFF" />
+  <circle cx="79.5" cy="54.5" r="0.8" fill="#FFFFFF" />
+
+  <!-- Fluffy Muzzle & Cheeks -->
+  <path d="M45 58 C38 65 42 78 52 79 C57 80 61 76 64 76 C67 76 71 80 76 79 C86 78 90 65 83 58 C78 62 70 63 64 63 C58 63 50 62 45 58 Z" fill="#FFFFFF" />
+  
+  <!-- Shaggy Cheek Tufts -->
+  <path d="M35 62 C30 66 32 74 38 74 C34 76 36 82 42 80" stroke="#E7E5E4" stroke-width="2" stroke-linecap="round" fill="none" />
+  <path d="M93 62 C98 66 96 74 90 74 C94 76 92 82 86 80" stroke="#E7E5E4" stroke-width="2" stroke-linecap="round" fill="none" />
+
+  <!-- Nose -->
+  <path d="M57 61 C57 58 60 56 64 56 C68 56 71 58 71 61 C71 66 67 69 64 69 C61 69 57 66 57 61 Z" fill="#1C1917" />
+  <ellipse cx="61.5" cy="59.5" rx="2" ry="1.2" fill="#78716C" />
+
+  <!-- Mouth & Happy Tongue -->
+  <path d="M59 69 C61 73 64 74 64 74 C64 74 67 73 69 69" stroke="#1C1917" stroke-width="1.8" stroke-linecap="round" fill="none" />
+  <!-- Tongue tip -->
+  <path d="M61.5 73 C61.5 77 66.5 77 66.5 73 Z" fill="#FB7185" />
+
+  <!-- Collar -->
+  <path d="M43 91 C50 95 64 96 64 96 C64 96 78 95 85 91 C87 95 85 99 83 100 C74 104 64 104.5 64 104.5 C64 104.5 54 104 45 100 C43 99 41 95 43 91 Z" fill="url(#collarRed)" stroke="#991B1B" stroke-width="1.2" />
+
+  <!-- Collar Tag Connector Ring -->
+  <circle cx="64" cy="103" r="3.5" fill="none" stroke="#D97706" stroke-width="1.5" />
+
+  <!-- Doc's Stopwatch Collar Tag (Einstein's 1-minute time trip!) -->
+  <g transform="translate(0, 2)">
+    <!-- Top stem & button -->
+    <rect x="62" y="101" width="4" height="3" rx="1" fill="#B45309" />
+    <rect x="61" y="99.5" width="6" height="2" rx="1" fill="#D97706" />
+
+    <!-- Stopwatch Outer Casing -->
+    <circle cx="64" cy="113" r="10" fill="url(#goldWatch)" stroke="#92400E" stroke-width="1.5" filter="url(#softShadow)" />
+
+    <!-- Stopwatch Bezel & Face -->
+    <circle cx="64" cy="113" r="7.5" fill="#FEFCE8" stroke="#D97706" stroke-width="1" />
+
+    <!-- Dial Tick Marks -->
+    <line x1="64" y1="106.5" x2="64" y2="108" stroke="#92400E" stroke-width="1" stroke-linecap="round" />
+    <line x1="64" y1="118" x2="64" y2="119.5" stroke="#92400E" stroke-width="1" stroke-linecap="round" />
+    <line x1="57.5" y1="113" x2="59" y2="113" stroke="#92400E" stroke-width="1" stroke-linecap="round" />
+    <line x1="69" y1="113" x2="70.5" y2="113" stroke="#92400E" stroke-width="1" stroke-linecap="round" />
+
+    <!-- Watch Hands pointing to 1:00 -->
+    <line x1="64" y1="113" x2="64" y2="108" stroke="#DC2626" stroke-width="1" stroke-linecap="round" />
+    <line x1="64" y1="113" x2="67" y2="111.5" stroke="#1C1917" stroke-width="1.2" stroke-linecap="round" />
+    <circle cx="64" cy="113" r="1.2" fill="#DC2626" />
+  </g>
+</svg>

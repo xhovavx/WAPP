@@ -1,5 +1,7 @@
 import React from 'react';
 import { PerspectiveMode } from '../types/chat';
+import { useUserAvatar } from '../utils/userAvatar';
+import { UserAvatarButton } from './UserAvatarButton';
 
 interface DesktopShellProps {
   children: React.ReactNode;
@@ -14,6 +16,37 @@ interface DesktopShellProps {
   onSelectPerspective: (mode: PerspectiveMode) => void;
 }
 
+
+const HovavLogo: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg
+    viewBox="0 0 1667 1667"
+    className={className}
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <g>
+      <circle cx="833.333" cy="833.333" r="789.583" fill="none" stroke="currentColor" strokeWidth="87.5px" />
+      <path
+        d="M662.871,763.558l0,125.242l-346.508,0l0,-125.242l346.508,0Zm-292.236,-268.117l0,675.392l-162.817,0l0,-675.392l162.817,0Zm401.711,0l0,675.392l-162.354,0l0,-675.392l162.354,0Zm686.504,0l0,675.392l-162.354,0l-238.892,-420.263l0,420.263l-162.817,0l0,-675.392l162.817,0l238.892,420.267l0,-420.267l162.354,0Z"
+        fill="currentColor"
+        fillRule="nonzero"
+      />
+    </g>
+  </svg>
+);
+
+const LinkedinIcon: React.FC<{ className?: string }> = ({ className = 'w-3.5 h-3.5' }) => (
+  <svg
+    viewBox="0 0 24 24"
+    className={className}
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+  </svg>
+);
+
+
 export const DesktopShell: React.FC<DesktopShellProps> = ({
   children,
   isPlayingIntro,
@@ -26,6 +59,7 @@ export const DesktopShell: React.FC<DesktopShellProps> = ({
   perspective,
   onSelectPerspective,
 }) => {
+  const { isCustom, resetToEinstein } = useUserAvatar();
   return (
     <div className="w-full h-full min-h-screen bg-[#0B141A] flex flex-col md:flex-row items-center justify-center p-0 md:p-6 lg:p-8 select-none font-sans overflow-hidden">
       {/* Desktop Quick Control Sidebar */}
@@ -88,6 +122,40 @@ export const DesktopShell: React.FC<DesktopShellProps> = ({
                 ? 'Doc’s POV: Doc’s 4:18 voice note on right, Marty on left.'
                 : 'Group POV: You interact as a 3rd member with Doc & Marty.'}
             </p>
+          </div>
+
+          {/* Your Profile Avatar (Einstein / Custom) */}
+          <div className="mb-4 bg-[#182229] p-3 rounded-2xl border border-[#222E35] flex items-center justify-between">
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <UserAvatarButton size="md" showBadge={true} />
+              <div className="text-left min-w-0">
+                <div className="text-xs font-bold text-[#E9EDEF] flex items-center space-x-1.5">
+                  <span>You</span>
+                  {isCustom ? (
+                    <span className="text-[9px] bg-blue-900/60 text-blue-300 px-1.5 py-0.2 rounded font-mono border border-blue-700/50">
+                      Custom Photo
+                    </span>
+                  ) : (
+                    <span className="text-[9px] bg-amber-900/60 text-amber-300 px-1.5 py-0.2 rounded font-mono border border-amber-700/50">
+                      Einstein 🐶
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] text-[#8696A0] truncate mt-0.5">
+                  {isCustom ? 'Click avatar to view / change' : 'Doc’s sheepdog — click to view'}
+                </p>
+              </div>
+            </div>
+
+            {isCustom && (
+              <button
+                onClick={resetToEinstein}
+                className="text-[10px] text-[#25D366] hover:text-[#00A884] font-medium px-2 py-1 rounded-lg bg-[#111B21] border border-[#202C33] hover:border-[#25D366]/40 transition-colors"
+                title="Reset to Einstein"
+              >
+                Reset
+              </button>
+            )}
           </div>
 
           {/* Feature Badges */}
@@ -182,6 +250,55 @@ export const DesktopShell: React.FC<DesktopShellProps> = ({
 
         {children}
       </div>
+
+      {/* Version Pill: v1.8 in Bottom-Left Corner */}
+      <div className="hidden md:block fixed bottom-4 left-5 z-50 pointer-events-none select-none">
+        <div className="bg-neutral-900/90 border border-neutral-800 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-neutral-300 shadow-lg">
+          v1.8
+        </div>
+      </div>
+
+      {/* Author, Article & LinkedIn Pill in Bottom-Right Corner */}
+      <div className="hidden md:block fixed bottom-4 right-5 z-50">
+        <div className="bg-neutral-900/95 border border-neutral-800 backdrop-blur-xl px-4 py-2 rounded-full flex items-center gap-3 text-xs text-neutral-300 shadow-2xl">
+          <a
+            href="https://www.hovavnuriel.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-white hover:text-neutral-300 transition-colors group"
+            title="Hovav Nuriel Portfolio"
+          >
+            <HovavLogo className="w-4 h-4 text-white group-hover:text-neutral-300 transition-colors" />
+            <span className="font-bold text-xs tracking-tight">Hovav Nuriel</span>
+          </a>
+
+          <span className="text-neutral-600 font-mono">·</span>
+
+          <a
+            href="https://www.hovavnuriel.com/thoughts/reply-smarter-to-whatsapp-voice-notes"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-neutral-300 hover:text-white transition-colors font-medium"
+            title="Read Project Article: Reply Smarter to WhatsApp Voice Notes"
+          >
+            Article
+          </a>
+
+          <span className="text-neutral-600 font-mono">·</span>
+
+          <a
+            href="https://www.linkedin.com/in/hovav"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-neutral-300 hover:text-white transition-colors flex items-center"
+            title="Hovav Nuriel on LinkedIn"
+            aria-label="LinkedIn"
+          >
+            <LinkedinIcon className="w-3.5 h-3.5" />
+          </a>
+        </div>
+      </div>
+      
     </div>
   );
 };

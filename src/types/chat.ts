@@ -17,6 +17,7 @@ export interface VoiceChapter {
   startTime: number; // in seconds
   endTime: number; // in seconds
   quote: string;
+  summary?: string; // concise description of chapter
   audioUrl?: string; // audio file or blob URL for this specific chapter
   waveformSnippet?: number[];
   reactions?: Record<string, number>;
